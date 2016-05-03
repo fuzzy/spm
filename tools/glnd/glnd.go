@@ -10,6 +10,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/fuzzy/gocolor"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -85,7 +86,11 @@ func main() {
 			}
 		}
 		if !Quiet {
-			fmt.Printf("%s Linked %10d files and %10d directories\n", os.Getenv("GLND_HEADER"), fn, dn)
+			fmt.Printf("%s%s Linked %10d files and %10d directories\n",
+				string(gocolor.String(">").Bold().Cyan()),
+				string(gocolor.String(">").Bold().White()),
+				fn,
+				dn)
 		}
 	} else {
 		var fn = 0
@@ -109,7 +114,11 @@ func main() {
 			}
 		}
 		if !Quiet {
-			fmt.Printf("%s Deleted %10d files and %10d directories\n", os.Getenv("GLND_HEADER"), fn, dn)
+			fmt.Printf("%s%s Deleted %10d files and %10d directories\n",
+				string(gocolor.String(">").Bold().Cyan()),
+				string(gocolor.String(">").Bold().White()),
+				fn,
+				dn)
 		}
 	}
 }
