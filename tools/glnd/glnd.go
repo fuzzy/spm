@@ -19,12 +19,15 @@ import (
 
 var Author = "Mike 'Fuzzy' Partin"
 var Email = "fuzzy@fumanchu.org"
-var Version = "0.0"
+var Version = "0.2"
 var From string
 var To string
-var Quiet bool
 var Delete bool
 
+/*
+ Walk the given path (which in general will be the install root of a package)
+ and build then return lists of all dirs and files contained recursively therein
+*/
 func walkDir(path string) ([]string, []string) {
 	var dirs []string
 	var files []string
@@ -44,16 +47,16 @@ func walkDir(path string) ([]string, []string) {
 }
 
 func main() {
+	// set our command line arguments
+	version := flag.Bool("version", false, "Show version information.")
 	flag.StringVar(&From, "src", "DIR", "Source directory.")
 	flag.StringVar(&To, "dst", "DIR", "Destination directory.")
-	version := flag.Bool("version", false, "Show version information.")
-	flag.BoolVar(&Quiet, "quiet", false, "Suppress output.")
 	flag.BoolVar(&Delete, "delete", false, "Delete files if they exist in <dst>")
 	flag.Parse()
 
 	/* Display version and exit */
 	if *version {
-		fmt.Printf("%s v%s by %s <%s>\n", os.Args[0][2:], Version, Author, Email)
+		fmt.Printf("%s\n", Version)
 		os.Exit(0)
 	}
 	if _, sErr := os.Stat(From); sErr != nil {
@@ -85,13 +88,11 @@ func main() {
 				fn++
 			}
 		}
-		if !Quiet {
-			fmt.Printf("%s%s Linked %10d files and %10d directories\n",
-				string(gocolor.String(">").Bold().Cyan()),
-				string(gocolor.String(">").Bold().White()),
-				fn,
-				dn)
-		}
+		fmt.Printf("%s%s Linked %10d files and %10d directories\n",
+			string(gocolor.String(">").Bold().Cyan()),
+			string(gocolor.String(">").Bold().White()),
+			fn,
+			dn)
 	} else {
 		var fn = 0
 		var dn = 0
@@ -113,12 +114,10 @@ func main() {
 				}
 			}
 		}
-		if !Quiet {
-			fmt.Printf("%s%s Deleted %10d files and %10d directories\n",
-				string(gocolor.String(">").Bold().Cyan()),
-				string(gocolor.String(">").Bold().White()),
-				fn,
-				dn)
-		}
+		fmt.Printf("%s%s Deleted %10d files and %10d directories\n",
+			string(gocolor.String(">").Bold().Cyan()),
+			string(gocolor.String(">").Bold().White()),
+			fn,
+			dn)
 	}
 }
