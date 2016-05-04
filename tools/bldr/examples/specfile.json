@@ -1,0 +1,86 @@
+{
+    /*
+      This file of course builds nothing, but is here to show you how a specfile
+      is written. It's pretty standard fare, nothing crazy or wildly different from
+      things like a rpm specfiles, or homebrew recipes (altho not in ruby).
+
+      Some rules to keep in mind:
+
+      1) All options are required.
+      2) Any value you have defined below, is available as a macro, there are other
+         macros available by default, they will documented elsewhere, and are referenced
+         with the syntax: $(macro) and it should be noted that macro names are *ALWAYS*
+         lower case.
+      3) Any environment variable can be referenced with the syntax: ${ENVVAR}
+    */
+
+    // Some basic metadata
+    "Author": "Mike 'Fuzzy' Partin",
+    "Email": "fuzzy@fumanchu.org",
+    "License": "BSD 2-clause",
+    "Homepage": "http://www.example.com",
+    "Package": "example",
+    "Version": "0.0.1",
+    /* This records our sources. There may be multiple URIs listed for the same file,
+       and the SHA1 recorded only once. SHA1 values are required for all patches and
+       extra data files that are requested however. */
+    "Sources": {
+        "Sha1": "6173d7238b5a7116439295086608ce9b98c73565",
+        "Uris": ["http://www.example.com/$(package)-$(version).tar.gz",
+                 "http://www.example-mirror.com/$(packages)-$(version).tar.gz"],
+        // Obviously patches. Anything that is here *will* get an apply attempt
+        "Patches": [
+            ["http://www.example.com/$(package)-bugfixes1.patch",
+             "8b10e7643e17e99c10458121d1371637e2de8737"],
+            ["http://www.othersite.com/$(package)-userfeature.patch",
+             "0abe0121f86c858de56318bb2248a2663863947a"]
+        ],
+        // Extra stuff like, artwork, icon packs, whatever data yadda yadda
+        "Data": []
+    },
+    // This is a simple list of strings like "package-0.10.1"
+    "Requires": [],
+    /* If this is true, all dependancies will be installed under the package installroot
+       this is useful for deploying everything an application needs as a single binpkg. */
+    "Inclusive": false,
+    /* This controls whether or not the packae is installed into a usable package root
+       (which may not be desired for deploy builds) */
+    "Install": true,
+    // Specify building a binpkg
+    "Binpkg": false,
+    "Setup": {
+        "Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+        "User": ""
+    },
+    "Configure" {
+        "Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+        "User": ""
+    },
+    "Compile": {
+        "Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+        "User": ""
+    },
+    "Install": {
+        "Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+        "User": ""
+    },
+    "Teardown": {
+        "Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+        "User": ""
+    }
+}
