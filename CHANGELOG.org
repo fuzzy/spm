@@ -1,0 +1,22 @@
+* DONE Tasks
+** DONE [bldr] define specfile format
+CLOSED: [2016-05-02 Mon 05:25]
+** DONE [glnd] full working implimentation with proper delete support
+CLOSED: [2016-05-02 Mon 22:55]
+
+* TODO tasks
+** TODO GLND (Go LNDir)
+*** TODO [glnd] proper README and LICENSE
+*** TODO [glnd] code cleanup and documentation audit
+*** TODO [glnd] better --help output
+** TODO BLDR (BuiLDeR...duh)
+*** TODO [bldr] handling for reading in specfiles
+*** TODO [bldr] macro and environment variable support
+*** TODO [bldr] proper defaults
+*** TODO [bldr] generic command handler
+*** TODO [bldr] proper README and LICENSE
+*** TODO [bldr] code cleanup and documentation audit
+*** TODO [bldr] finalize the binpkg format
+*** TODO [bldr] proper dependancy handling
+*** TODO [bldr] download and hash support
+*** TODO [bldr] proper archive extraction
