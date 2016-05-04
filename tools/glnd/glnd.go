@@ -49,8 +49,8 @@ func walkDir(path string) ([]string, []string) {
 func main() {
 	// set our command line arguments
 	version := flag.Bool("version", false, "Show version information.")
-	flag.StringVar(&From, "src", "DIR", "Source directory.")
-	flag.StringVar(&To, "dst", "DIR", "Destination directory.")
+	flag.StringVar(&From, "src", "SRC", "Source directory.")
+	flag.StringVar(&To, "dst", "DST", "Destination directory.")
 	flag.BoolVar(&Delete, "delete", false, "Delete files if they exist in <dst>")
 	flag.Parse()
 
@@ -59,6 +59,14 @@ func main() {
 		fmt.Printf("%s\n", Version)
 		os.Exit(0)
 	}
+
+	// if we don't have a source or destination, complain
+	if From == "SRC" || To == "DST" {
+		fmt.Printf("You must supply a source and destination.")
+		os.Exit(1)
+	}
+
+	// otherwise, let's make sure that everything exists...
 	if _, sErr := os.Stat(From); sErr != nil {
 		fmt.Printf("Source directory: %s does not exist.\n", From)
 		os.Exit(1)
@@ -70,6 +78,8 @@ func main() {
 
 	/* walk the source directory */
 	dirs, files := walkDir(From)
+
+	// Well now wer're linking
 	if !Delete {
 		var fn = 0
 		var dn = 0
@@ -94,6 +104,7 @@ func main() {
 			fn,
 			dn)
 	} else {
+		// And now we're unlinking
 		var fn = 0
 		var dn = 0
 		sort.Sort(sort.Reverse(sort.StringSlice(dirs)))
