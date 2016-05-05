@@ -1,0 +1,30 @@
+{
+    "Color": true,
+    "PerUser": true,
+
+    "Logging": {
+        "Output": "file",
+        "Logfile": "/var/log/spm/main.log",
+        "Facility": false
+        "Loglevel": "debug"
+    },
+
+    "Directories": {
+        "System": {
+            "InstallRoot": "/pkg/roots",
+            "BinpkgRoot": "/pkg/packages",
+            "DistFiles": "/pkg/distfiles",
+            "Profiles": "/pkg/profiles",
+            "GlobalRoot": "/pkg/fakeroot",
+            "SessionRoot": false
+        },
+        "User": {
+            "InstallRoot": "${HOME}/.spm/roots",
+            "BinpkgRoot": "${HOME}/.spm/packages",
+            "DistFiles": "${HOME}/.spm/distfiles",
+            "Profiles": "${HOME}/.spm/profiles",
+            "GlobalRoot": "${HOME}/.spm/global",
+            "SessionRoot": "${HOME}/.spm/sessions/${SPM_SESSION_ID}"
+        }
+    }
+}

@@ -9,24 +9,55 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"os"
 )
 
-type DirConfig struct {
-	System struct {
-		BinPkgRoot  string `json:"binPkgRoot"`
-		DistFiles   string `json:"distFiles"`
-		GlobalRoot  string `json:"globalRoot"`
-		InstRoot    string `json:"instRoot"`
-		Profiles    string `json:"profiles"`
-		SessionRoot bool   `json:"sessionRoot"`
-	} `json:"System"`
-	User struct {
-		BinPkgRoot  string `json:"binPkgRoot"`
-		DistFiles   string `json:"distFiles"`
-		GlobalRoot  string `json:"globalRoot"`
-		InstRoot    string `json:"instRoot"`
-		Profiles    string `json:"profiles"`
-		SessionRoot string `json:"sessionRoot"`
-	} `json:"User"`
+/*
+Parse our config.
+TODO: macro expansion after loading the JSON config
+*/
+type SpmConfig struct {
+	Color       bool `json:"Color"`
+	Directories struct {
+		System struct {
+			BinpkgRoot  string `json:"BinpkgRoot"`
+			DistFiles   string `json:"DistFiles"`
+			GlobalRoot  string `json:"GlobalRoot"`
+			InstallRoot string `json:"InstallRoot"`
+			Profiles    string `json:"Profiles"`
+			SessionRoot bool   `json:"SessionRoot"`
+		} `json:"System"`
+		User struct {
+			BinpkgRoot  string `json:"BinpkgRoot"`
+			DistFiles   string `json:"DistFiles"`
+			GlobalRoot  string `json:"GlobalRoot"`
+			InstallRoot string `json:"InstallRoot"`
+			Profiles    string `json:"Profiles"`
+			SessionRoot string `json:"SessionRoot"`
+		} `json:"User"`
+	} `json:"Directories"`
+	Logging struct {
+		Facility bool   `json:"Facility"`
+		Logfile  string `json:"Logfile"`
+		Loglevel string `json:"Loglevel"`
+		Output   string `json:"Output"`
+	} `json:"Logging"`
+	PerUser bool `json:"PerUser"`
+}
+
+var SpmCfg SpmConfig
+
+func LoadConfig(cfg string) error {
+	data, e := ioutil.ReadFile(cfg)
+	if e != nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
+	e = json.Unmarshal([]byte(data), &SpmCfg)
+	if e != nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
 }
