@@ -3,12 +3,18 @@
 CLOSED: [2016-05-02 Mon 05:25]
 ** DONE [glnd] full working implimentation with proper delete support
 CLOSED: [2016-05-02 Mon 22:55]
+*** DONE [glnd] code cleanup and documentation audit
+CLOSED: [2016-05-05 Thu 06:29]
 
 * TODO tasks
 ** TODO GLND (Go LNDir)
 *** TODO [glnd] proper README and LICENSE
-*** TODO [glnd] code cleanup and documentation audit
 *** TODO [glnd] better --help output
+** TODO GOGET (go...get it?)
+*** TODO [goget] basic http/s fetch support
+*** TODO [goget] basic ftp/s fetch support
+*** TODO [goget] code cleanup and documentation audit
+*** TODO [goget] proper README and LICENSE
 ** TODO BLDR (BuiLDeR...duh)
 *** TODO [bldr] handling for reading in specfiles
 *** TODO [bldr] macro and environment variable support
@@ -20,3 +26,9 @@ CLOSED: [2016-05-02 Mon 22:55]
 *** TODO [bldr] proper dependancy handling
 *** TODO [bldr] download and hash support
 *** TODO [bldr] proper archive extraction
+** TODO GEX (Go Extract)
+*** TODO [gex] compression type detection
+*** TODO [gex] decompression and extraction
+*** TODO [gex] code cleanup and documentation audit
+*** TODO [gex] proper README and LICENSE
+** TODO SPM (Splat/Star Package Manager)
