@@ -78,7 +78,6 @@ func main() {
 					_, err = io.Copy(out, resp.Body)
 					ErrChk(err)
 				} else if Uri[:5] == "https" {
-					fmt.Println("HTTPS Support is being worked on")
 					// create our https support
 					tr := &http.Transport{}
 					if !Insecure {
