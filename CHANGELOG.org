@@ -3,7 +3,7 @@
 CLOSED: [2016-05-02 Mon 05:25]
 ** DONE [glnd] full working implimentation with proper delete support
 CLOSED: [2016-05-02 Mon 22:55]
-*** DONE [glnd] code cleanup and documentation audit
+** DONE [glnd] code cleanup and documentation audit
 CLOSED: [2016-05-05 Thu 06:29]
 
 * TODO tasks
