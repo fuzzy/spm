@@ -24,10 +24,10 @@ func main() {
 	if len(os.Args) > 1 {
 		for i := 1; i < len(os.Args); i++ {
 			if os.Args[i] == "-h" || os.Args[i] == "-help" || os.Args[i] == "--help" {
-				fmt.Printf("Usage: %s <-h|-q> [URI] <output file/dir>\n", os.Args[0])
-				fmt.Printf("%-25s Show this help screen\n", "-h|-help|--help")
-				fmt.Printf("%-25s Suppress output\n", "-q|-quiet|--quiet")
-				fmt.Printf("%-25s Do not validate certificates (https)\n", "-i|-insecure|--insecure")
+				fmt.Printf("Usage: %s <-h|-q|-i> [URI] <output file/dir>\n", os.Args[0])
+				fmt.Printf("%2s|%-9s|%-10s Show this help screen\n", "-h", "-help", "--help")
+				fmt.Printf("%2s|%-9s|%-10s Suppress output\n", "-q", "-quiet", "--quiet")
+				fmt.Printf("%2s|%-9s|%-10s Do not validate certificates (https)\n", "-i", "-insecure", "--insecure")
 				os.Exit(1)
 			}
 			if os.Args[i] == "-q" || os.Args[i] == "-quiet" || os.Args[i] == "--quiet" {
