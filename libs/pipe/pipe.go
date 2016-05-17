@@ -8,50 +8,171 @@ package pipe
 */
 
 import (
-	"git.c0d0p0s0.vpn/fuzzy/spm.git/libs/errchk"
-	"os"
+	"fmt"
 	"time"
-	//	"io"
 )
 
-type PMeter interface {
-	Write(p []byte) (int, error)
-	Read(p []byte) (int, error)
-	Seek(offset int64, whence int) (int64, error)
+// Interface definitions
+
+type PipeReader interface {
+	Read(b []byte) (n int, e error)
+}
+
+type PipeWriter interface {
+	Write(b []byte) (n int, e error)
+}
+
+type PipeCloser interface {
 	Close() error
 }
 
-type PipeMeter struct {
-	File     *os.File
-	Start    time.Time
-	BytesIn  int64
-	BytesOut int64
-	Total    int64
+type PipeReadWriter interface {
+	PipeReader
+	PipeWriter
 }
 
-func (pm PipeMeter) Write(p []byte) (int, error) {
-	pm.BytesOut += int64(len(p))
-	return pm.File.Write(p)
+type PipeReadCloser interface {
+	PipeReader
+	PipeCloser
 }
 
-func (pm PipeMeter) Read(p []byte) (int, error) {
-	return pm.File.Read(p)
+type PipeWriteCloser interface {
+	PipeWriter
+	PipeCloser
 }
 
-func (pm PipeMeter) Seek(offset int64, whence int) (int64, error) {
-	return pm.File.Seek(offset, whence)
+type PipeReadWriteCloser interface {
+	PipeReader
+	PipeWriter
+	PipeCloser
 }
 
-func (pm PipeMeter) Close() error {
-	return pm.File.Close()
+// Object definitions
+
+/*
+ * Object:  MeterReader
+ * Methods: Read(b []byte) (int, error)
+ */
+type MeterReader struct {
+	IoObject PipeReader
+	BytesIn  int
+	Started  int64
 }
 
-func NewPipeMeter(f *os.File) PipeMeter {
-	fInfo, err := os.Stat(f.Name())
-	errchk.ErrChk(err)
-	return PipeMeter{File: f,
-		BytesIn:  0,
-		BytesOut: 0,
-		Total:    fInfo.Size(),
-		Start:    time.Now()}
+func (m *MeterReader) Read(b []byte) (n int, e error) {
+	rv, re := m.IoObject.Read(b)
+	m.BytesIn += rv
+	if re != nil && re.Error() == "EOF" {
+		fmt.Printf("Read %10d bytes in %10d seconds\n", m.BytesIn, (time.Now().Unix() - m.Started))
+		return rv, re
+	}
+	fmt.Printf("Read %10d bytes in %10d seconds\r", m.BytesIn, (time.Now().Unix() - m.Started))
+	return rv, re
+}
+
+/*
+ * Object:  MeterReader
+ * Methods: Read(b []byte) (int, error)
+ */
+type MeterWriter struct {
+	IoObject PipeWriter
+	BytesOut int
+	Started  int64
+}
+
+func (m *MeterWriter) Write(b []byte) (n int, e error) {
+	rv, re := m.IoObject.Write(b)
+	m.BytesOut += rv
+	if re != nil {
+		fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
+		return rv, re
+	}
+	fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
+	return rv, re
+}
+
+/*
+ * Object:  MeterReader
+ * Methods: Read(b []byte) (int, error)
+ */
+type MeterReadWriter struct {
+	IoObject PipeReadWriter
+	BytesIn  int
+	BytesOut int
+	Started  int64
+}
+
+func (m *MeterReadWriter) Read(b []byte) (n int, e error) {
+	rv, re := m.IoObject.Read(b)
+	m.BytesIn += rv
+	if re != nil && re.Error() == "EOF" {
+		fmt.Printf("Read %10d bytes in %10d seconds\n", m.BytesIn, (time.Now().Unix() - m.Started))
+		return rv, re
+	}
+	fmt.Printf("Read %10d bytes in %10d seconds\r", m.BytesIn, (time.Now().Unix() - m.Started))
+	return rv, re
+}
+
+func (m *MeterReadWriter) Write(b []byte) (n int, e error) {
+	rv, re := m.IoObject.Write(b)
+	m.BytesOut += rv
+	if re != nil {
+		fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
+		return rv, re
+	}
+	fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
+	return rv, re
+}
+
+/*
+ * Object:  MeterReadCloser
+ * Methods: Read(b []byte) (int, error)
+ *          Close() error
+ */
+type MeterReadCloser struct {
+	IoObject PipeReadCloser
+	BytesIn  int
+	Started  int64
+}
+
+func (m *MeterReadCloser) Read(b []byte) (n int, e error) {
+	rv, re := m.IoObject.Read(b)
+	m.BytesIn += rv
+	if re != nil && re.Error() == "EOF" {
+		fmt.Printf("Read %10d bytes in %10d seconds @ %10d bytes/sec\n",
+			m.BytesIn,
+			(time.Now().Unix() - m.Started),
+			(int64(m.BytesIn) / (time.Now().Unix() - m.Started)))
+		return rv, re
+	}
+	fmt.Printf("Read %10d bytes in %10d seconds\r", m.BytesIn, (time.Now().Unix() - m.Started))
+	return rv, re
+}
+
+func (m *MeterReadCloser) Close() error {
+	return m.IoObject.Close()
+}
+
+func NewMeterReadCloser(o PipeReadCloser) *MeterReadCloser {
+	return &MeterReadCloser{o, 0, time.Now().Unix()}
+}
+
+/*
+ * Object:  MeterWriteCloser
+ * Methods: Write(b []byte) (int, error)
+ *          Close() error
+ */
+type MeterWriteCloser struct {
+	IoObject PipeWriteCloser
+	BytesOut int
+	Started  int64
+}
+
+/*
+ */
+type MeterReadWriteCloser struct {
+	IoObject PipeReadWriteCloser
+	BytesIn  int
+	BytesOut int
+	Started  int64
 }
