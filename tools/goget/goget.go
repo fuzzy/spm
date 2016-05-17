@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"git.c0d0p0s0.vpn/fuzzy/spm.git/libs/pipe"
 	"github.com/dutchcoders/goftp"
 	"io"
 	"net/http"
@@ -44,7 +45,7 @@ func HttpGet(u string) {
 	defer out.Close()
 
 	// and download the file
-	_, err = io.Copy(out, resp.Body)
+	_, err = io.Copy(out, pipe.NewMeterReadCloser(resp.Body))
 	ErrChk(err)
 }
 
