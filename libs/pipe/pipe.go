@@ -9,6 +9,7 @@ package pipe
 
 import (
 	"fmt"
+	"github.com/pivotal-golang/bytefmt"
 	"time"
 )
 
@@ -49,130 +50,73 @@ type PipeReadWriteCloser interface {
 
 // Object definitions
 
-/*
- * Object:  MeterReader
- * Methods: Read(b []byte) (int, error)
- */
-type MeterReader struct {
-	IoObject PipeReader
-	BytesIn  int
-	Started  int64
-}
-
-func (m *MeterReader) Read(b []byte) (n int, e error) {
-	rv, re := m.IoObject.Read(b)
-	m.BytesIn += rv
-	if re != nil && re.Error() == "EOF" {
-		fmt.Printf("Read %10d bytes in %10d seconds\n", m.BytesIn, (time.Now().Unix() - m.Started))
-		return rv, re
-	}
-	fmt.Printf("Read %10d bytes in %10d seconds\r", m.BytesIn, (time.Now().Unix() - m.Started))
-	return rv, re
-}
-
-/*
- * Object:  MeterReader
- * Methods: Read(b []byte) (int, error)
- */
-type MeterWriter struct {
-	IoObject PipeWriter
-	BytesOut int
-	Started  int64
-}
-
-func (m *MeterWriter) Write(b []byte) (n int, e error) {
-	rv, re := m.IoObject.Write(b)
-	m.BytesOut += rv
-	if re != nil {
-		fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
-		return rv, re
-	}
-	fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
-	return rv, re
-}
-
-/*
- * Object:  MeterReader
- * Methods: Read(b []byte) (int, error)
- */
-type MeterReadWriter struct {
-	IoObject PipeReadWriter
+type MeteredPipe struct {
+	IoObject interface{}
 	BytesIn  int
 	BytesOut int
 	Started  int64
 }
 
-func (m *MeterReadWriter) Read(b []byte) (n int, e error) {
-	rv, re := m.IoObject.Read(b)
-	m.BytesIn += rv
-	if re != nil && re.Error() == "EOF" {
-		fmt.Printf("Read %10d bytes in %10d seconds\n", m.BytesIn, (time.Now().Unix() - m.Started))
-		return rv, re
+func (m *MeteredPipe) Read(b []byte) (n int, e error) {
+	if v, ok := m.IoObject.(PipeReader); ok {
+		n, e := v.Read(b)
+		m.BytesIn += n
+		if (time.Now().Unix() - m.Started) >= 1 {
+			if e != nil && e.Error() == "EOF" {
+				fmt.Printf("Read %8s in %10d seconds @ %8s/sec\n",
+					bytefmt.ByteSize(uint64(m.BytesIn)),
+					(time.Now().Unix() - m.Started),
+					bytefmt.ByteSize(uint64((int64(m.BytesIn) / (time.Now().Unix() - m.Started)))))
+				return n, e
+			}
+			fmt.Printf("Read %8s in %10d seconds @ %8s/sec    \r",
+				bytefmt.ByteSize(uint64(m.BytesIn)),
+				(time.Now().Unix() - m.Started),
+				bytefmt.ByteSize(uint64((int64(m.BytesIn) / (time.Now().Unix() - m.Started)))))
+		}
+		return n, e
+	} else {
+		return n, e
 	}
-	fmt.Printf("Read %10d bytes in %10d seconds\r", m.BytesIn, (time.Now().Unix() - m.Started))
-	return rv, re
 }
 
-func (m *MeterReadWriter) Write(b []byte) (n int, e error) {
-	rv, re := m.IoObject.Write(b)
-	m.BytesOut += rv
-	if re != nil {
-		fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
-		return rv, re
+func (m *MeteredPipe) Write(b []byte) (n int, e error) {
+	if v, ok := m.IoObject.(PipeWriter); ok {
+		n, e := v.Write(b)
+		m.BytesOut += n
+		if e != nil {
+			// fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
+			fmt.Println(n, e)
+			return n, e
+		}
+		// fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
+		fmt.Println(n, e)
+		return n, e
+	} else {
+		fmt.Println(n, e)
+		return n, e
 	}
-	fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
-	return rv, re
 }
 
-/*
- * Object:  MeterReadCloser
- * Methods: Read(b []byte) (int, error)
- *          Close() error
- */
-type MeterReadCloser struct {
-	IoObject PipeReadCloser
-	BytesIn  int
-	Started  int64
-}
-
-func (m *MeterReadCloser) Read(b []byte) (n int, e error) {
-	rv, re := m.IoObject.Read(b)
-	m.BytesIn += rv
-	if re != nil && re.Error() == "EOF" {
-		fmt.Printf("Read %10d bytes in %10d seconds @ %10d bytes/sec\n",
-			m.BytesIn,
-			(time.Now().Unix() - m.Started),
-			(int64(m.BytesIn) / (time.Now().Unix() - m.Started)))
-		return rv, re
+func (m *MeteredPipe) Close() error {
+	if v, ok := m.IoObject.(PipeCloser); ok {
+		return v.Close()
+	} else {
+		return nil
 	}
-	fmt.Printf("Read %10d bytes in %10d seconds\r", m.BytesIn, (time.Now().Unix() - m.Started))
-	return rv, re
 }
 
-func (m *MeterReadCloser) Close() error {
-	return m.IoObject.Close()
-}
-
-func NewMeterReadCloser(o PipeReadCloser) *MeterReadCloser {
-	return &MeterReadCloser{o, 0, time.Now().Unix()}
-}
-
-/*
- * Object:  MeterWriteCloser
- * Methods: Write(b []byte) (int, error)
- *          Close() error
- */
-type MeterWriteCloser struct {
-	IoObject PipeWriteCloser
-	BytesOut int
-	Started  int64
-}
-
-/*
- */
-type MeterReadWriteCloser struct {
-	IoObject PipeReadWriteCloser
-	BytesIn  int
-	BytesOut int
-	Started  int64
+func NewMeteredPipe(o interface{}) *MeteredPipe {
+	retv := &MeteredPipe{}
+	if v, ok := o.(PipeReadWriteCloser); ok {
+		retv.IoObject = v
+	} else if v, ok := o.(PipeWriteCloser); ok {
+		retv.IoObject = v
+	} else if v, ok := o.(PipeReadCloser); ok {
+		retv.IoObject = v
+	} else {
+		retv.IoObject = v
+	}
+	retv.Started = time.Now().Unix()
+	return retv
 }
