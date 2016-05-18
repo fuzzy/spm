@@ -85,15 +85,12 @@ func (m *MeteredPipe) Write(b []byte) (n int, e error) {
 		n, e := v.Write(b)
 		m.BytesOut += n
 		if e != nil {
-			// fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
-			fmt.Println(n, e)
+			fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
 			return n, e
 		}
-		// fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
-		fmt.Println(n, e)
+		fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
 		return n, e
 	} else {
-		fmt.Println(n, e)
 		return n, e
 	}
 }
