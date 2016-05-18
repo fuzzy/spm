@@ -45,7 +45,7 @@ func HttpGet(u string) {
 	defer out.Close()
 
 	// and download the file
-	_, err = io.Copy(out, pipe.NewMeterReadCloser(resp.Body))
+	_, err = io.Copy(out, pipe.NewMeteredPipe(resp.Body))
 	ErrChk(err)
 }
 
