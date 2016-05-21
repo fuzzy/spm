@@ -82,40 +82,49 @@ func getWidth() uint {
 }
 
 // Humanize # of bytes into readable strings
-func HumanSize(n uint64) String {
-	if n < 1024 {
-		return String(fmt.Sprintf("%4d%s", n, String("B").Bold().White()))
-	} else if float64(n) > 1024 && float64(n) <= math.Pow(1024, 2) {
-		return String(fmt.Sprintf("%.02f%s",
-			(float64(n) / float64(1024)),
-			String("KB").Bold().White()))
-	} else if float64(n) > math.Pow(1024, 2) && float64(n) <= math.Pow(1024, 3) {
-		return String(fmt.Sprintf("%.02f%s",
-			(float64(n) / float64(math.Pow(1024, 2))),
-			String("MB").Bold().White()))
-	} else if float64(n) > math.Pow(1024, 3) && float64(n) <= math.Pow(1024, 4) {
-		return String(fmt.Sprintf("%.02f%s",
-			(float64(n) / float64(math.Pow(1024, 3))),
-			String("GB").Bold().White()))
-	} else {
-		return ""
+func HumanSize(n uint64) (int, String) {
+	labels := []string{"B", "K", "M", "G", "T", "P", "E"}
+	for pow := 0; pow < len(labels); pow++ {
+		if pow == 0 {
+			if n < 1024 {
+				return len(fmt.Sprintf("%4dX", n)),
+					String(labels[pow]).Bold().White()
+			}
+		} else if pow == 1 {
+			if float64(n) > 1024 && float64(n) <= float64(math.Pow(1024, float64(pow+1))) {
+				return len(fmt.Sprintf("%.02fX", (float64(n) / float64(1024)))),
+					String(fmt.Sprintf("%.02f%s",
+						(float64(n) / float64(1024)),
+						String(labels[pow]).Bold().White()))
+			}
+		} else {
+			if float64(n) > math.Pow(1024, float64(pow)) && float64(n) <= math.Pow(1024, float64(pow+1)) {
+				return len(fmt.Sprintf("%.02fX", (float64(n) / float64(math.Pow(1024, float64(pow)))))),
+					String(fmt.Sprintf("%.02f%s",
+						(float64(n) / float64(math.Pow(1024, float64(pow)))),
+						String(labels[pow]).Bold().White()))
+			}
+		}
 	}
+	return 0, String("")
 }
 
 // Humanize # of seconds into readable strings
-func HumanTime(n uint64) String {
+func HumanTime(n uint64) (int, String) {
 	sc := uint64(1)
 	mn := (sc * uint64(60))
 	hr := (mn * uint64(60))
 	if n > 1 && n <= mn {
-		return String(fmt.Sprintf("%02d%s", n, String("s").Bold().White()))
+		return len(fmt.Sprintf("%02dX", n)),
+			String(fmt.Sprintf("%02d%s", n, String("s").Bold().White()))
 	} else if n > mn && n <= hr {
-		return String(fmt.Sprintf("%02d%s%02d%s",
-			(n / mn),
-			String("m").Bold().White(),
-			(n % mn),
-			String("s").Bold().White()))
+		return len(fmt.Sprintf("%02dX%02dX", (n / mn), (n % mn))),
+			String(fmt.Sprintf("%02d%s%02d%s",
+				(n / mn),
+				String("m").Bold().White(),
+				(n % mn),
+				String("s").Bold().White()))
 	} else {
-		return String("")
+		return 0, String("")
 	}
 }
