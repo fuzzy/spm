@@ -62,19 +62,22 @@ func (m *MeteredPipe) Read(b []byte) (n int, e error) {
 		n, e := v.Read(b)
 		m.BytesIn += n
 		if (time.Now().Unix() - m.Started) >= 1 {
+			totalTime := uint64(time.Now().Unix() - m.Started)
+			avgSpeed := uint64((uint64(m.BytesIn) / totalTime))
+			_, humanBytesIn := gout.HumanSize(uint64(m.BytesIn))
+			_, humanTotalTime := gout.HumanTime(totalTime)
+			_, humanAvgSpeed := gout.HumanSize(avgSpeed)
 			if e != nil && e.Error() == "EOF" {
-				totalTime := (time.Now().Unix() - m.Started)
-				avgSpeed := uint64((int64(m.BytesIn / totalTime)))
-				fmt.Printf("Read %8s in %10d seconds @ %8s/sec\n",
-					bytefmt.ByteSize(uint64(m.BytesIn)),
-					totalTime,
-					bytefmt.ByteSize(avgSpeed))
+				fmt.Printf("Read %8s in %10s @ %8s/sec\n",
+					humanBytesIn,
+					fmt.Sprintf("%10s", humanTotalTime),
+					humanAvgSpeed)
 				return n, e
 			}
-			fmt.Printf("Read %8s in %10d seconds @ %8s/sec    \r",
-				bytefmt.ByteSize(uint64(m.BytesIn)),
-				totalTime,
-				bytefmt.ByteSize(avgSpeed))
+			fmt.Printf("Read %8s in %10s @ %8s/sec                  \r",
+				humanBytesIn,
+				fmt.Sprintf("%10s", humanTotalTime),
+				humanAvgSpeed)
 		}
 		return n, e
 	} else {
