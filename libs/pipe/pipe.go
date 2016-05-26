@@ -9,7 +9,7 @@ package pipe
 
 import (
 	"fmt"
-	"github.com/pivotal-golang/bytefmt"
+	"github.com/fuzzy/spm/libs/gout"
 	"time"
 )
 
@@ -63,16 +63,18 @@ func (m *MeteredPipe) Read(b []byte) (n int, e error) {
 		m.BytesIn += n
 		if (time.Now().Unix() - m.Started) >= 1 {
 			if e != nil && e.Error() == "EOF" {
+				totalTime := (time.Now().Unix() - m.Started)
+				avgSpeed := uint64((int64(m.BytesIn / totalTime))
 				fmt.Printf("Read %8s in %10d seconds @ %8s/sec\n",
 					bytefmt.ByteSize(uint64(m.BytesIn)),
-					(time.Now().Unix() - m.Started),
-					bytefmt.ByteSize(uint64((int64(m.BytesIn) / (time.Now().Unix() - m.Started)))))
+					totalTime,
+					bytefmt.ByteSize(avgSpeed))
 				return n, e
 			}
 			fmt.Printf("Read %8s in %10d seconds @ %8s/sec    \r",
 				bytefmt.ByteSize(uint64(m.BytesIn)),
-				(time.Now().Unix() - m.Started),
-				bytefmt.ByteSize(uint64((int64(m.BytesIn) / (time.Now().Unix() - m.Started)))))
+				totalTime,
+				bytefmt.ByteSize(avgSpeed))
 		}
 		return n, e
 	} else {
@@ -85,10 +87,14 @@ func (m *MeteredPipe) Write(b []byte) (n int, e error) {
 		n, e := v.Write(b)
 		m.BytesOut += n
 		if e != nil {
-			fmt.Printf("Wrote %10d bytes in %10d seconds\n", m.BytesOut, (time.Now().Unix() - m.Started))
+			fmt.Printf("Wrote %10d bytes in %10d seconds\n",
+				m.BytesOut,
+				(time.Now().Unix() - m.Started))
 			return n, e
 		}
-		fmt.Printf("Wrote %10d bytes in %10d seconds\r", m.BytesOut, (time.Now().Unix() - m.Started))
+		fmt.Printf("Wrote %10d bytes in %10d seconds\r",
+			m.BytesOut,
+			(time.Now().Unix() - m.Started))
 		return n, e
 	} else {
 		return n, e
