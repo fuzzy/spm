@@ -9,12 +9,16 @@ CLOSED: [2016-05-05 Thu 06:29]
 CLOSED: [2016-05-07 Sat 19:35]
 ** DONE [goget] code cleanup and documentation audit
 CLOSED: [2016-05-07 Sat 19:35]
+** DONE [pipe] Finish all the interface boilerplate
+CLOSED: [2016-05-25 Wed 19:23]
+** DONE [pipe] Finish all the factory functions
+CLOSED: [2016-05-25 Wed 19:23]
+** DONE [goget] basic ftp/s fetch support
+CLOSED: [2016-05-25 Wed 19:24]
 
 * TODO tasks
 ** TODO Libs
 *** TODO PIPE (metered i/o library)
-**** TODO [pipe] Finish all the interface boilerplate
-**** TODO [pipe] Finish all the factory functions
 **** TODO [pipe] proper README and LICENSE
 **** TODO [pipe] documentation and code cleanup audit
 ** TODO Tools
@@ -22,7 +26,6 @@ CLOSED: [2016-05-07 Sat 19:35]
 **** TODO [glnd] proper README and LICENSE
 **** TODO [glnd] better --help output
 *** TODO GOGET (go...get it?)
-**** TODO [goget] basic ftp/s fetch support
 **** TODO [goget] proper README and LICENSE
 **** TODO [goget] proper output handling
 *** TODO BLDR (BuiLDeR...duh)
