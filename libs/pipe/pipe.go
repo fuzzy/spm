@@ -64,7 +64,7 @@ func (m *MeteredPipe) Read(b []byte) (n int, e error) {
 		if (time.Now().Unix() - m.Started) >= 1 {
 			if e != nil && e.Error() == "EOF" {
 				totalTime := (time.Now().Unix() - m.Started)
-				avgSpeed := uint64((int64(m.BytesIn / totalTime))
+				avgSpeed := uint64((int64(m.BytesIn / totalTime)))
 				fmt.Printf("Read %8s in %10d seconds @ %8s/sec\n",
 					bytefmt.ByteSize(uint64(m.BytesIn)),
 					totalTime,
