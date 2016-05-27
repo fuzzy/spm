@@ -8,9 +8,9 @@
 
       1) All options are required.
       2) Any value you have defined below, is available as a macro, there are other
-         macros available by default, they will documented elsewhere, and are referenced
-         with the syntax: $(macro) and it should be noted that macro names are *ALWAYS*
-         lower case.
+      macros available by default, they will documented elsewhere, and are referenced
+      with the syntax: $(macro) and it should be noted that macro names are *ALWAYS*
+      lower case.
       3) Any environment variable can be referenced with the syntax: ${ENVVAR}
     */
 
@@ -44,24 +44,25 @@
        this is useful for deploying everything an application needs as a single binpkg. */
     "Inclusive": false,
     /* This controls whether or not the packae is installed into a usable package root
-       (which may not be desired for deploy builds) */
+       (which may not be desired for deploy builds
+       ) */
     "Install": true,
     // Specify building a binpkg
     "Binpkg": false,
-    "Setup": {
-        "Command": "hostname",
+    "Setup": [
+        {"Command": "hostname",
         "Environment": [["PATH", "${PATH}"]],
         "Arguments": [">/tmp/thisnode"],
         "Directory": "/",
-        "User": ""
-    },
-    "Configure" {
-        "Command": "hostname",
+         "User": ""}
+    ],
+    "Configure" [
+        {"Command": "hostname",
         "Environment": [["PATH", "${PATH}"]],
         "Arguments": [">/tmp/thisnode"],
         "Directory": "/",
-        "User": ""
-    },
+         "User": ""}
+    ],
     "Compile": {
         "Command": "hostname",
         "Environment": [["PATH", "${PATH}"]],

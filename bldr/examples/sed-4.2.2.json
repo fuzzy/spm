@@ -1,0 +1,62 @@
+{
+    "Author": "Mike 'Fuzzy' Partin",
+    "Email": "fuzzy@fumanchu.org",
+    "License": "BSD 2-clause",
+    "Homepage": "http://www.example.com",
+    "Package": "example",
+    "Version": "0.0.1",
+    "Sources": {
+        "Sha1": "6173d7238b5a7116439295086608ce9b98c73565",
+        "Uris": ["http://www.example.com/$(package)-$(version).tar.gz",
+                 "http://www.example-mirror.com/$(packages)-$(version).tar.gz"],
+        "Patches": [
+            ["http://www.example.com/$(package)-bugfixes1.patch",
+             "8b10e7643e17e99c10458121d1371637e2de8737"],
+            ["http://www.othersite.com/$(package)-userfeature.patch",
+             "0abe0121f86c858de56318bb2248a2663863947a"]
+        ],
+        "Data": [
+            ["ftp://ftp.funet.fi/README",
+             "7b0670f8f764b0429e18c9812fc8e2b1103addaa"]
+        ]
+    },
+    "Requires": ["perl-5.22.1", "gmake-3.32"],
+    "Inclusive": false,
+    "Install": true,
+    "Binpkg": false,
+    "Setup": [
+        {"Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+         "User": ""}
+    ],
+    "Configure": [
+        {"Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+         "User": ""}
+    ],
+    "Compile": [
+        {"Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+         "User": ""}
+    ],
+    "Install": [
+        {"Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+         "User": ""}
+    ],
+    "Teardown": [
+        {"Command": "hostname",
+        "Environment": [["PATH", "${PATH}"]],
+        "Arguments": [">/tmp/thisnode"],
+        "Directory": "/",
+         "User": ""}
+    ]
+}

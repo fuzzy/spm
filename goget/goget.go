@@ -3,7 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/fuzzy/spm/libs/pipe"
+	"github.com/fuzzy/spm/pipe"
 	"github.com/dutchcoders/goftp"
 	"io"
 	"net/http"
