@@ -21,6 +21,14 @@ CLOSED: [2016-05-25 Wed 19:24]
 *** TODO PIPE (metered i/o library)
 **** TODO [pipe] proper README and LICENSE
 **** TODO [pipe] documentation and code cleanup audit
+**** TODO [pipe] input size detection if possible
+**** TODO [pipe] progress bar and ETA
+*** TODO GOUT (Go OUTput) 
+**** TODO [gout] full sprint* style wrappers
+**** TODO [gout] terminal detection
+**** TODO [gout] file logging support
+**** TODO [gout] proper README and LICENSE
+**** TODO [gout] documentationa and code cleanup audit
 ** TODO Tools
 *** TODO GLND (Go LNDir)
 **** TODO [glnd] proper README and LICENSE
