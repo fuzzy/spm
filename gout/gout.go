@@ -3,6 +3,8 @@ package gout
 import (
 	"fmt"
 	"math"
+	"regexp"
+	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -82,49 +84,77 @@ func getWidth() uint {
 }
 
 // Humanize # of bytes into readable strings
-func HumanSize(n uint64) (int, String) {
+func HumanSize(n uint64) String {
 	labels := []string{"B", "K", "M", "G", "T", "P", "E"}
 	for pow := 0; pow < len(labels); pow++ {
 		if pow == 0 {
 			if n < 1024 {
-				return len(fmt.Sprintf("%4dX", n)),
-					String(labels[pow]).Bold().White()
+				return String(labels[pow]).Yellow()
 			}
 		} else if pow == 1 {
 			if float64(n) > 1024 && float64(n) <= float64(math.Pow(1024, float64(pow+1))) {
-				return len(fmt.Sprintf("%.02fX", (float64(n) / float64(1024)))),
-					String(fmt.Sprintf("%.02f%s",
+				return String(fmt.Sprintf("%.02f%s",
 						(float64(n) / float64(1024)),
-						String(labels[pow]).Bold().White()))
+						String(labels[pow]).Yellow()))
 			}
 		} else {
 			if float64(n) > math.Pow(1024, float64(pow)) && float64(n) <= math.Pow(1024, float64(pow+1)) {
-				return len(fmt.Sprintf("%.02fX", (float64(n) / float64(math.Pow(1024, float64(pow)))))),
-					String(fmt.Sprintf("%.02f%s",
+				return String(fmt.Sprintf("%.02f%s",
 						(float64(n) / float64(math.Pow(1024, float64(pow)))),
-						String(labels[pow]).Bold().White()))
+						String(labels[pow]).Yellow()))
 			}
 		}
 	}
-	return 0, String("")
+	return String("")
 }
 
 // Humanize # of seconds into readable strings
-func HumanTime(n uint64) (int, String) {
+func HumanTime(n uint64) String {
 	sc := uint64(1)
 	mn := (sc * uint64(60))
 	hr := (mn * uint64(60))
 	if n > 1 && n <= mn {
-		return len(fmt.Sprintf("%02dX", n)),
-			String(fmt.Sprintf("%02d%s", n, String("s").Bold().White()))
+		return String(fmt.Sprintf("%02d%s", n, String("s").Yellow()))
 	} else if n > mn && n <= hr {
-		return len(fmt.Sprintf("%02dX%02dX", (n / mn), (n % mn))),
-			String(fmt.Sprintf("%02d%s%02d%s",
+		return String(fmt.Sprintf("%02d%s%02d%s",
 				(n / mn),
-				String("m").Bold().White(),
+				String("m").Yellow(),
 				(n % mn),
-				String("s").Bold().White()))
+				String("s").Yellow()))
 	} else {
-		return 0, String("")
+		return String("")
 	}
+}
+
+func ProgressBar(c float64, t float64) String {
+	p := ((c / t) * float64(100))
+	d := int(p / float64(5))
+	if p > 0.01 {
+		return String(fmt.Sprintf("%s%s%s%s",
+			String("[").Yellow(),
+			String(strings.Repeat("#", d)).Bold().Red(),
+			strings.Repeat(" ", (20 - d)),
+			String("]").Yellow()))
+	} else {
+		return String(fmt.Sprintf("%s%s%s",
+			String("[").Yellow(),
+			strings.Repeat(" ", 20),
+			String("]").Yellow()))
+	}	
+}
+
+func Printr(s string) {
+	r, _ := regexp.Compile("\\033[[0-9;]+m")
+	l := len(r.ReplaceAllString(s, ""))
+	w := getWidth()
+	
+	fmt.Printf("%s%s\r", s, strings.Repeat(" ", int(w - uint(l))))
+}
+
+func Println(s string) {
+	r, _ := regexp.Compile("\\033[[0-9;]+m")
+	l := len(r.ReplaceAllString(s, ""))
+	w := getWidth()
+	
+	fmt.Println(s, strings.Repeat(" ", int(w - uint(l+2))))
 }

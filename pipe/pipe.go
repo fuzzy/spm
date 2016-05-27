@@ -51,10 +51,12 @@ type PipeReadWriteCloser interface {
 // Object definitions
 
 type MeteredPipe struct {
-	IoObject interface{}
-	BytesIn  int
-	BytesOut int
-	Started  int64
+	IoObject   interface{}
+	BytesIn    int
+	BytesOut   int
+	BytesTotal int64
+	Started    int64
+	LastUpdate int64
 }
 
 func (m *MeteredPipe) Read(b []byte) (n int, e error) {
@@ -64,20 +66,26 @@ func (m *MeteredPipe) Read(b []byte) (n int, e error) {
 		if (time.Now().Unix() - m.Started) >= 1 {
 			totalTime := uint64(time.Now().Unix() - m.Started)
 			avgSpeed := uint64((uint64(m.BytesIn) / totalTime))
-			_, humanBytesIn := gout.HumanSize(uint64(m.BytesIn))
-			_, humanTotalTime := gout.HumanTime(totalTime)
-			_, humanAvgSpeed := gout.HumanSize(avgSpeed)
+			percentDone := (float64(m.BytesIn) / float64(m.BytesTotal)) * float64(100)
+
 			if e != nil && e.Error() == "EOF" {
-				fmt.Printf("Read %8s in %10s @ %8s/sec\n",
-					humanBytesIn,
-					fmt.Sprintf("%10s", humanTotalTime),
-					humanAvgSpeed)
+				gout.Println(fmt.Sprintf("%6.02f%% %s %s in %s @ %s/sec",
+					percentDone,
+					gout.ProgressBar(float64(m.BytesIn), float64(m.BytesTotal)),
+					gout.HumanSize(uint64(m.BytesIn)),
+					gout.HumanTime(totalTime),
+					gout.HumanSize(avgSpeed)))
 				return n, e
 			}
-			fmt.Printf("Read %8s in %10s @ %8s/sec                  \r",
-				humanBytesIn,
-				fmt.Sprintf("%10s", humanTotalTime),
-				humanAvgSpeed)
+			if time.Now().Unix() - m.LastUpdate >= 1 {
+				gout.Printr(fmt.Sprintf("%6.02f%% %s %s in %s @ %s/sec",
+					percentDone,
+					gout.ProgressBar(float64(m.BytesIn), float64(m.BytesTotal)),
+					gout.HumanSize(uint64(m.BytesIn)),
+					gout.HumanTime(totalTime),
+					gout.HumanSize(avgSpeed)))
+				m.LastUpdate = time.Now().Unix()
+			}
 		}
 		return n, e
 	} else {
@@ -112,8 +120,9 @@ func (m *MeteredPipe) Close() error {
 	}
 }
 
-func NewMeteredPipe(o interface{}) *MeteredPipe {
+func NewMeteredPipe(o interface{}, s int64) *MeteredPipe {
 	retv := &MeteredPipe{}
+	retv.BytesTotal = s
 	if v, ok := o.(PipeReadWriteCloser); ok {
 		retv.IoObject = v
 	} else if v, ok := o.(PipeWriteCloser); ok {
