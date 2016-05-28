@@ -89,19 +89,19 @@ func HumanSize(n uint64) String {
 	for pow := 0; pow < len(labels); pow++ {
 		if pow == 0 {
 			if n < 1024 {
-				return String(labels[pow]).Yellow()
+				return String(labels[pow]).Bold().Yellow()
 			}
 		} else if pow == 1 {
 			if float64(n) > 1024 && float64(n) <= float64(math.Pow(1024, float64(pow+1))) {
 				return String(fmt.Sprintf("%.02f%s",
-						(float64(n) / float64(1024)),
-						String(labels[pow]).Yellow()))
+					(float64(n) / float64(1024)),
+					String(labels[pow]).Bold().Yellow()))
 			}
 		} else {
 			if float64(n) > math.Pow(1024, float64(pow)) && float64(n) <= math.Pow(1024, float64(pow+1)) {
 				return String(fmt.Sprintf("%.02f%s",
-						(float64(n) / float64(math.Pow(1024, float64(pow)))),
-						String(labels[pow]).Yellow()))
+					(float64(n) / float64(math.Pow(1024, float64(pow)))),
+					String(labels[pow]).Bold().Yellow()))
 			}
 		}
 	}
@@ -113,48 +113,59 @@ func HumanTime(n uint64) String {
 	sc := uint64(1)
 	mn := (sc * uint64(60))
 	hr := (mn * uint64(60))
-	if n > 1 && n <= mn {
-		return String(fmt.Sprintf("%02d%s", n, String("s").Yellow()))
-	} else if n > mn && n <= hr {
-		return String(fmt.Sprintf("%02d%s%02d%s",
-				(n / mn),
-				String("m").Yellow(),
-				(n % mn),
-				String("s").Yellow()))
+	cln := String(":").Bold().Yellow()
+	var sc_c, mn_c, hr_c string
+
+	if n > 1 && n < mn {
+		sc_c = fmt.Sprintf("%02d", n)
+		mn_c = "00"
+		hr_c = "00"
+	} else if n >= mn && n < hr {
+		hr_c = "00"
+		mn_c = fmt.Sprintf("%02d", (n / mn))
+		sc_c = fmt.Sprintf("%02d", (n % mn))
+	} else if n >= hr {
+		hr_c = fmt.Sprintf("%02d", (n / hr))
+		mn_c = fmt.Sprintf("%02d", (n % hr))
+		sc_c = fmt.Sprintf("%02d", (n % (n % hr)))
 	} else {
-		return String("")
+		hr_c, mn_c, sc_c = "00", "00", "00"
 	}
+
+	return String(fmt.Sprintf("%s%s%s%s%s",
+		hr_c, cln, mn_c, cln, sc_c))
 }
 
 func ProgressBar(c float64, t float64) String {
 	p := ((c / t) * float64(100))
 	d := int(p / float64(5))
 	if p > 0.01 {
-		return String(fmt.Sprintf("%s%s%s%s",
-			String("[").Yellow(),
+		return String(fmt.Sprintf("%6.02f%% %s%s%s%s",
+			p,
+			String("[").Bold().Yellow(),
 			String(strings.Repeat("#", d)).Bold().Red(),
-			strings.Repeat(" ", (20 - d)),
-			String("]").Yellow()))
+			strings.Repeat(" ", (20-d)),
+			String("]").Bold().Yellow()))
 	} else {
-		return String(fmt.Sprintf("%s%s%s",
-			String("[").Yellow(),
+		return String(fmt.Sprintf("------ %s%s%s",
+			String("[").Bold().Red(),
 			strings.Repeat(" ", 20),
-			String("]").Yellow()))
-	}	
+			String("]").Bold().Yellow()))
+	}
 }
 
 func Printr(s string) {
 	r, _ := regexp.Compile("\\033[[0-9;]+m")
 	l := len(r.ReplaceAllString(s, ""))
 	w := getWidth()
-	
-	fmt.Printf("%s%s\r", s, strings.Repeat(" ", int(w - uint(l))))
+
+	fmt.Printf("%s%s\r", s, strings.Repeat(" ", int(w-uint(l))))
 }
 
 func Println(s string) {
 	r, _ := regexp.Compile("\\033[[0-9;]+m")
 	l := len(r.ReplaceAllString(s, ""))
 	w := getWidth()
-	
-	fmt.Println(s, strings.Repeat(" ", int(w - uint(l+2))))
+
+	fmt.Println(s, strings.Repeat(" ", int(w-uint(l+2))))
 }
