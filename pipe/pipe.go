@@ -8,6 +8,7 @@ package pipe
 */
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/fuzzy/spm/gout"
 	"time"
@@ -48,42 +49,80 @@ type PipeReadWriteCloser interface {
 	PipeCloser
 }
 
+// string helper
+func StrAppend(t gout.String, a gout.String) gout.String {
+	var retv bytes.Buffer
+	for i := 0; i < len(t); i++ {
+		retv.WriteByte(t[i])
+	}
+	for i := 0; i < len(a); i++ {
+		retv.WriteByte(a[i])
+	}
+	return gout.String(retv.String())
+}
+
 // Object definitions
 
 type MeteredPipe struct {
 	IoObject   interface{}
-	BytesIn    int
-	BytesOut   int
-	BytesTotal int64
+	BytesIn    uint64
+	BytesOut   uint64
+	BytesTotal uint64
 	Started    int64
 	LastUpdate int64
+}
+
+func (m *MeteredPipe) output() gout.String {
+	// we need this for scope
+	var remain_n float64
+	var remain_s gout.String
+	var retval gout.String
+
+	// First the math bits
+	elapsed_n := uint64(time.Now().Unix() - m.Started)
+	speed_n := (m.BytesIn / elapsed_n)
+	if m.BytesTotal > 0 {
+		remain_n = ((float64(m.BytesTotal) - float64(m.BytesIn)) / float64(speed_n))
+	}
+
+	// Now the string bits
+	elapsed_s := gout.HumanTime(elapsed_n)
+	speed_s := gout.HumanSize(speed_n)
+	if m.BytesTotal > 0 {
+		remain_s = gout.HumanTime(uint64(remain_n))
+	} else {
+		remain_s = ""
+	}
+
+	// now build our output string
+	if m.BytesTotal > 0 {
+		retval = StrAppend(retval, remain_s)
+		retval = StrAppend(retval, " ")
+		retval = StrAppend(retval, gout.ProgressBar(float64(m.BytesIn), float64(m.BytesTotal)))
+		retval = StrAppend(retval, " ")
+	}
+	retval = StrAppend(retval, gout.HumanSize(m.BytesIn))
+	retval = StrAppend(retval, " in ")
+	retval = StrAppend(retval, elapsed_s)
+	retval = StrAppend(retval, " @ ")
+	retval = StrAppend(retval, speed_s)
+	retval = StrAppend(retval, "/sec")
+
+	// and finally hand it back
+	return retval
 }
 
 func (m *MeteredPipe) Read(b []byte) (n int, e error) {
 	if v, ok := m.IoObject.(PipeReader); ok {
 		n, e := v.Read(b)
-		m.BytesIn += n
+		m.BytesIn += uint64(n)
 		if (time.Now().Unix() - m.Started) >= 1 {
-			totalTime := uint64(time.Now().Unix() - m.Started)
-			avgSpeed := uint64((uint64(m.BytesIn) / totalTime))
-			percentDone := (float64(m.BytesIn) / float64(m.BytesTotal)) * float64(100)
-
 			if e != nil && e.Error() == "EOF" {
-				gout.Println(fmt.Sprintf("%6.02f%% %s %s in %s @ %s/sec",
-					percentDone,
-					gout.ProgressBar(float64(m.BytesIn), float64(m.BytesTotal)),
-					gout.HumanSize(uint64(m.BytesIn)),
-					gout.HumanTime(totalTime),
-					gout.HumanSize(avgSpeed)))
+				gout.Println(string(m.output()))
 				return n, e
 			}
-			if time.Now().Unix() - m.LastUpdate >= 1 {
-				gout.Printr(fmt.Sprintf("%6.02f%% %s %s in %s @ %s/sec",
-					percentDone,
-					gout.ProgressBar(float64(m.BytesIn), float64(m.BytesTotal)),
-					gout.HumanSize(uint64(m.BytesIn)),
-					gout.HumanTime(totalTime),
-					gout.HumanSize(avgSpeed)))
+			if time.Now().Unix()-m.LastUpdate >= 1 {
+				gout.Printr(string(m.output()))
 				m.LastUpdate = time.Now().Unix()
 			}
 		}
@@ -96,16 +135,12 @@ func (m *MeteredPipe) Read(b []byte) (n int, e error) {
 func (m *MeteredPipe) Write(b []byte) (n int, e error) {
 	if v, ok := m.IoObject.(PipeWriter); ok {
 		n, e := v.Write(b)
-		m.BytesOut += n
+		m.BytesOut += uint64(n)
 		if e != nil {
-			fmt.Printf("Wrote %10d bytes in %10d seconds\n",
-				m.BytesOut,
-				(time.Now().Unix() - m.Started))
-			return n, e
+			gout.Println(string(m.output()))
+		} else {
+			gout.Printr(string(m.output()))
 		}
-		fmt.Printf("Wrote %10d bytes in %10d seconds\r",
-			m.BytesOut,
-			(time.Now().Unix() - m.Started))
 		return n, e
 	} else {
 		return n, e
@@ -122,7 +157,7 @@ func (m *MeteredPipe) Close() error {
 
 func NewMeteredPipe(o interface{}, s int64) *MeteredPipe {
 	retv := &MeteredPipe{}
-	retv.BytesTotal = s
+	retv.BytesTotal = uint64(s)
 	if v, ok := o.(PipeReadWriteCloser); ok {
 		retv.IoObject = v
 	} else if v, ok := o.(PipeWriteCloser); ok {
