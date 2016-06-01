@@ -9,7 +9,6 @@ package pipe
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/fuzzy/spm/gout"
 	"time"
 )
