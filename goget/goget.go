@@ -3,8 +3,8 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/fuzzy/spm/pipe"
 	"github.com/dutchcoders/goftp"
+	"github.com/fuzzy/spm/pipe"
 	"io"
 	"net/http"
 	"os"
@@ -175,7 +175,7 @@ func main() {
 		}
 		// Create our output filehandle
 		if Out == "" {
-			Out = "/tmp"
+			Out, _ = os.Getwd()
 		}
 		if f, _ := os.Stat(Out); f.IsDir() {
 			data := strings.Split(Uri, "/")
