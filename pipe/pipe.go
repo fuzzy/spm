@@ -8,57 +8,9 @@ package pipe
 */
 
 import (
-	"bytes"
 	"github.com/fuzzy/spm/gout"
 	"time"
 )
-
-// Interface definitions
-
-type PipeReader interface {
-	Read(b []byte) (n int, e error)
-}
-
-type PipeWriter interface {
-	Write(b []byte) (n int, e error)
-}
-
-type PipeCloser interface {
-	Close() error
-}
-
-type PipeReadWriter interface {
-	PipeReader
-	PipeWriter
-}
-
-type PipeReadCloser interface {
-	PipeReader
-	PipeCloser
-}
-
-type PipeWriteCloser interface {
-	PipeWriter
-	PipeCloser
-}
-
-type PipeReadWriteCloser interface {
-	PipeReader
-	PipeWriter
-	PipeCloser
-}
-
-// string helper
-func StrAppend(t gout.String, a gout.String) gout.String {
-	var retv bytes.Buffer
-	for i := 0; i < len(t); i++ {
-		retv.WriteByte(t[i])
-	}
-	for i := 0; i < len(a); i++ {
-		retv.WriteByte(a[i])
-	}
-	return gout.String(retv.String())
-}
 
 // Object definitions
 
